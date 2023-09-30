@@ -90,7 +90,7 @@ const Lids = ({ scene, texture }) => {
 
         useFrame((state) => {
             if (actionPlay === true) {
-                state.scene.children[15].visible = false;
+                state.scene.children[14].visible = false;
             }
         });
 
