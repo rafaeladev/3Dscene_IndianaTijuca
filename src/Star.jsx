@@ -1,36 +1,36 @@
 import React, { useRef } from 'react';
 import { Bloom, EffectComposer } from '@react-three/postprocessing';
 import { Sparkles } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
 
 // Debug
 import { useControls } from 'leva';
 
 const Star = ({ nodes }) => {
-    const { position, scale } = useControls('Sparkles', {
-        position: {
-            value: { x: 6.8, y: 12, z: 6.2 },
-            min: -40,
-            max: 40,
-            step: 0.1,
-        },
-        scale: {
-            value: { x: 4.1, y: 3.5, z: 3.4 },
-            min: -40,
-            max: 40,
-            step: 0.1,
-        },
-    });
+    // Debug
+    // const { position, scale } = useControls('Sparkles', {
+    //     position: {
+    //         value: { x: 6.8, y: 12, z: 6.2 },
+    //         min: -40,
+    //         max: 40,
+    //         step: 0.1,
+    //     },
+    //     scale: {
+    //         value: { x: 4.1, y: 3.5, z: 3.4 },
+    //         min: -40,
+    //         max: 40,
+    //         step: 0.1,
+    //     },
+    // });
 
     return (
         <>
-            <EffectComposer>
+            {/* <EffectComposer>
                 <Bloom
                     mipmapBlur
                     intensity={0.5}
                     luminanceThreshold={1}
                 />
-            </EffectComposer>
+            </EffectComposer> */}
 
             {/* Christmas star */}
             <mesh

@@ -17,10 +17,8 @@ const Experience = () => {
     //Window sizes
     // let { width, height } = useThree((state) => state.viewport);
 
-    // Model
-    const scene = useMemo(() => {
-        return useGLTF('./model/indiana_tijuca_christmas_scene_v5.glb');
-    }, []);
+    // Model;
+    const scene = useGLTF('./model/indiana_tijuca_christmas_scene_v5.glb');
     const nodes = scene.nodes;
 
     // Texture

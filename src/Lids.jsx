@@ -9,7 +9,7 @@ import { useControls } from 'leva';
 // R3F imports
 import { useFrame } from '@react-three/fiber';
 
-const Lids = ({ scene, texture, completionFunction }) => {
+const Lids = ({ scene, texture }) => {
     const [hitSound] = useState(() => new Audio('./success.mp3'));
     const [hitFinalSound] = useState(() => new Audio('./santa-claus.mp3'));
 
@@ -19,21 +19,26 @@ const Lids = ({ scene, texture, completionFunction }) => {
     const nodes = scene.nodes;
 
     // Debug
-    const { position, scale } = useControls('Sparkles', {
-        position: {
-            value: { x: 6.8, y: 12, z: 6.2 },
-            min: -40,
-            max: 40,
-            step: 0.1,
-        },
-        scale: {
-            value: { x: 4.1, y: 3.5, z: 3.4 },
-            min: -40,
-            max: 40,
-            step: 0.1,
-        },
-    });
+    // const { position, scale } = useControls('Sparkles', {
+    //     position: {
+    //         value: { x: 6.8, y: 12, z: 6.2 },
+    //         min: -40,
+    //         max: 40,
+    //         step: 0.1,
+    //     },
+    //     scale: {
+    //         value: { x: 4.1, y: 3.5, z: 3.4 },
+    //         min: -40,
+    //         max: 40,
+    //         step: 0.1,
+    //     },
+    // });
 
+    /**
+     * Function to generate the geometries
+     * @param {*} props
+     * @returns DOM elements
+     */
     function Model(props) {
         const [actionPlay, setActionPlay] = useState(false);
 
@@ -49,26 +54,33 @@ const Lids = ({ scene, texture, completionFunction }) => {
             letterAnimationName = animations.names[props.i + 6];
         }
 
+        /**
+         *Function to handle the click event
+         *
+         * @param {*} e
+         */
         const eventHandler = (e) => {
             e.stopPropagation();
 
             const action = animations.actions[animationName];
             const letterAction = letterAnimations.actions[letterAnimationName];
 
-            console.log(letterAction);
-
             action.play();
             letterAction.play();
 
+            // State management to verify when the animation is playing
             setActionPlay(true);
 
+            // Animation sound
             hitSound.currentTime = 0;
             hitSound.volume = 0.2;
             hitSound.play();
 
+            // Animation parameters
             action.repetitions = 1;
             letterAction.repetitions = 1;
 
+            // To fix the final position at the letter at the final moment of the animation
             letterAction.clampWhenFinished = true;
 
             if (letterAction.isRunning() === true) {
@@ -76,20 +88,11 @@ const Lids = ({ scene, texture, completionFunction }) => {
             }
         };
 
-        // useFrame((state) => {
-        //     if (actionPlay === true) {
-        //         state.scene.children[15].visible = false;
-        //     }
-        //     if (completionCount === 0) {
-        //         state.scene.children[16].visible = false;
-        //     }
-
-        //     if (completionCount === 6) {
-        //         window.setTimeout(() => {
-        //             state.scene.children[16].visible = true;
-        //         }, 2000);
-        //     }
-        // });
+        useFrame((state) => {
+            if (actionPlay === true) {
+                state.scene.children[15].visible = false;
+            }
+        });
 
         if (props.name === 'pointing_hand') {
             const action = animations.actions[animationName];
@@ -122,12 +125,14 @@ const Lids = ({ scene, texture, completionFunction }) => {
                         document.body.style.cursor = 'grab';
                     }}
                 >
+                    {/* Lids geometry */}
                     <mesh onClick={eventHandler}>
                         <primitive object={nodes[props.name]}>
                             <meshBasicMaterial map={texture} />
                         </primitive>
                     </mesh>
 
+                    {/* Boxes geometry */}
                     {props.boxName && (
                         <mesh onClick={eventHandler}>
                             <primitive object={nodes[props.boxName]}>
@@ -137,6 +142,7 @@ const Lids = ({ scene, texture, completionFunction }) => {
                     )}
                 </group>
 
+                {/* Letters geometry */}
                 {props.letterName && (
                     <mesh>
                         <primitive object={nodes[props.letterName]}>
@@ -203,14 +209,14 @@ const Lids = ({ scene, texture, completionFunction }) => {
             />
 
             {/* Particles */}
-            <Sparkles
+            {/* <Sparkles
                 size={30}
                 scale={[8, 2, 10]}
                 position={[-4, -3, -7]}
                 speed={0.5}
                 count={60}
                 color={'#ffffff'}
-            />
+            /> */}
         </>
     );
 };
