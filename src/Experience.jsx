@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 
 // Drei
 import { useGLTF, useTexture, OrbitControls } from '@react-three/drei';
@@ -14,9 +14,6 @@ import Lids from './Lids.jsx';
 import Star from './Star.jsx';
 
 const Experience = () => {
-    //Window sizes
-    // let { width, height } = useThree((state) => state.viewport);
-
     // Model
     const scene = useGLTF('./model/indiana_tijuca_christmas_scene_v5.glb');
     const nodes = scene.nodes;
@@ -118,6 +115,7 @@ const Experience = () => {
         if (actionPlay === true) {
             state.scene.children[14].visible = false;
         }
+        console.log(state.camera.position);
     });
 
     // Verifying the state of the count to play the final effects
@@ -137,7 +135,7 @@ const Experience = () => {
             />
             <OrbitControls
                 makeDefault
-                // enableZoom={false}
+                // enableZoom={true}
                 // enablePan={false}
                 // minPolarAngle={Math.PI / 2.1}
                 // maxPolarAngle={Math.PI / 1.9}
@@ -161,11 +159,6 @@ const Experience = () => {
             </mesh>
 
             <Star nodes={scene.nodes} />
-
-            {/* <Lids
-                scene={scene}
-                texture={bakedTexture}
-            /> */}
 
             {/* Gifts covers */}
             {lids3D}
