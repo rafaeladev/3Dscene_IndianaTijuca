@@ -1,20 +1,22 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useState } from 'react';
 
 // Drei imports
-import { useAnimations, Stars, Sparkles } from '@react-three/drei';
+import { useAnimations, Sparkles } from '@react-three/drei';
 
 // Debug
 import { useControls } from 'leva';
 
-// R3F imports
-import { useFrame } from '@react-three/fiber';
-
-const Lids = ({ scene, texture }) => {
-    const [hitSound] = useState(() => new Audio('./success.mp3'));
-    const [hitFinalSound] = useState(() => new Audio('./santa-claus.mp3'));
-
-    let completionCount = 0;
-
+const Lids = ({
+    scene,
+    texture,
+    name,
+    boxName,
+    letterName,
+    number,
+    i,
+    completionCount,
+    eventHandler,
+}) => {
     // Objects of the scene
     const nodes = scene.nodes;
 
@@ -34,189 +36,86 @@ const Lids = ({ scene, texture }) => {
     //     },
     // });
 
-    /**
-     * Function to generate the geometries
-     * @param {*} props
-     * @returns DOM elements
-     */
-    function Model(props) {
-        const [actionPlay, setActionPlay] = useState(false);
+    let letterAnimationName = null;
 
-        let letterAnimationName = null;
+    // Animations
+    const animations = useAnimations(scene.animations, nodes[name]);
+    const letterAnimations = useAnimations(scene.animations, nodes[letterName]);
 
-        // Animations
-        const animations = useAnimations(scene.animations, nodes[props.name]);
-        const letterAnimations = useAnimations(scene.animations, nodes[props.letterName]);
+    const animationName = animations.names[number];
 
-        const animationName = animations.names[props.number];
+    if (letterName) {
+        letterAnimationName = animations.names[i + 6];
+    }
 
-        if (props.letterName) {
-            letterAnimationName = animations.names[props.i + 6];
-        }
-
-        /**
-         *Function to handle the click event
-         *
-         * @param {*} e
-         */
-        const eventHandler = (e) => {
-            e.stopPropagation();
-
-            const action = animations.actions[animationName];
-            const letterAction = letterAnimations.actions[letterAnimationName];
-
-            action.play();
-            letterAction.play();
-
-            // State management to verify when the animation is playing
-            setActionPlay(true);
-
-            // Animation sound
-            hitSound.currentTime = 0;
-            hitSound.volume = 0.2;
-            hitSound.play();
-
-            // Animation parameters
-            action.repetitions = 1;
-            letterAction.repetitions = 1;
-
-            // To fix the final position at the letter at the final moment of the animation
-            letterAction.clampWhenFinished = true;
-
-            if (letterAction.isRunning() === true) {
-                completionCount = completionCount + 1;
-            }
-        };
-
-        useFrame((state) => {
-            if (actionPlay === true) {
-                state.scene.children[14].visible = false;
-            }
-        });
-
-        if (props.name === 'pointing_hand') {
-            const action = animations.actions[animationName];
-            action.play();
-
-            return (
-                <mesh>
-                    <primitive object={nodes[props.name]}>
-                        <meshBasicMaterial map={texture} />
-                    </primitive>
-                </mesh>
-            );
-        }
-
-        if (completionCount === 6) {
-            hitFinalSound.currentTime = 0;
-            hitFinalSound.volume = 0.2;
-            window.setTimeout(() => {
-                hitFinalSound.play();
-            }, 2000);
-        }
+    if (name === 'pointing_hand') {
+        const action = animations.actions[animationName];
+        action.play();
 
         return (
-            <>
-                <group
-                    onPointerEnter={() => {
-                        document.body.style.cursor = 'pointer';
-                    }}
-                    onPointerLeave={() => {
-                        document.body.style.cursor = 'grab';
-                    }}
-                >
-                    {/* Lids geometry */}
-                    <mesh onClick={eventHandler}>
-                        <primitive object={nodes[props.name]}>
-                            <meshBasicMaterial map={texture} />
-                        </primitive>
-                    </mesh>
-
-                    {/* Boxes geometry */}
-                    {props.boxName && (
-                        <mesh onClick={eventHandler}>
-                            <primitive object={nodes[props.boxName]}>
-                                <meshBasicMaterial map={texture} />
-                            </primitive>
-                        </mesh>
-                    )}
-                </group>
-
-                {/* Letters geometry */}
-                {props.letterName && (
-                    <mesh>
-                        <primitive object={nodes[props.letterName]}>
-                            <meshBasicMaterial map={texture} />
-                        </primitive>
-                    </mesh>
-                )}
-            </>
+            <mesh>
+                <primitive object={nodes[name]}>
+                    <meshBasicMaterial map={texture} />
+                </primitive>
+            </mesh>
         );
     }
 
     return (
         <>
-            {/* Gifts covers */}
-            <Model
-                name={'export_gift_01_lid'}
-                boxName={'export_gift_01_box'}
-                letterName={'letter_01_t'}
-                number={2}
-                i={9}
-            />
-            <Model
-                name={'export_gift_02_lid'}
-                boxName={'export_gift_02_box'}
-                letterName={'letter_05_c'}
-                number={3}
-                i={13}
-            />
-            <Model
-                name={'export_gift_03_lid'}
-                boxName={'export_gift_03_box'}
-                letterName={'letter_04_u'}
-                number={4}
-                i={12}
-            />
-            <Model
-                name={'export_gift_04_lid'}
-                boxName={'export_gift_04_box'}
-                letterName={'letter_02_i'}
-                number={5}
-                i={10}
-            />
-            <Model
-                name={'export_gift_05_lid'}
-                boxName={'export_gift_05_box'}
-                letterName={'letter_06_a'}
-                number={6}
-                i={14}
-            />
-            <Model
-                name={'export_gift_06_lid'}
-                boxName={'export_gift_06_box'}
-                letterName={'letter_03_j'}
-                number={7}
-                i={11}
-            />
+            <group
+                onPointerEnter={() => {
+                    document.body.style.cursor = 'pointer';
+                }}
+                onPointerLeave={() => {
+                    document.body.style.cursor = 'grab';
+                }}
+            >
+                {/* Lids geometry */}
+                <mesh
+                    onClick={(event) =>
+                        eventHandler(
+                            event,
+                            animations,
+                            letterAnimations,
+                            animationName,
+                            letterAnimationName
+                        )
+                    }
+                >
+                    <primitive object={nodes[name]}>
+                        <meshBasicMaterial map={texture} />
+                    </primitive>
+                </mesh>
 
-            {/* Pointing hand */}
-            <Model
-                name={'pointing_hand'}
-                letterName={null}
-                number={8}
-                i={6}
-            />
+                {/* Boxes geometry */}
+                {boxName && (
+                    <mesh
+                        onClick={(event) =>
+                            eventHandler(
+                                event,
+                                animations,
+                                letterAnimations,
+                                animationName,
+                                letterAnimationName
+                            )
+                        }
+                    >
+                        <primitive object={nodes[boxName]}>
+                            <meshBasicMaterial map={texture} />
+                        </primitive>
+                    </mesh>
+                )}
+            </group>
 
-            {/* Particles */}
-            {/* <Sparkles
-                size={30}
-                scale={[8, 2, 10]}
-                position={[-4, -3, -7]}
-                speed={0.5}
-                count={60}
-                color={'#ffffff'}
-            /> */}
+            {/* Letters geometry */}
+            {letterName && (
+                <mesh>
+                    <primitive object={nodes[letterName]}>
+                        <meshBasicMaterial map={texture} />
+                    </primitive>
+                </mesh>
+            )}
         </>
     );
 };
