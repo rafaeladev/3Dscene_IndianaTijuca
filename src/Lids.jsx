@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 // Drei imports
 import { useAnimations, Sparkles } from '@react-three/drei';
@@ -6,17 +6,7 @@ import { useAnimations, Sparkles } from '@react-three/drei';
 // Debug
 import { useControls } from 'leva';
 
-const Lids = ({
-    scene,
-    texture,
-    name,
-    boxName,
-    letterName,
-    number,
-    i,
-    completionCount,
-    eventHandler,
-}) => {
+const Lids = ({ scene, texture, name, boxName, letterName, number, i, eventHandler }) => {
     // Objects of the scene
     const nodes = scene.nodes;
 

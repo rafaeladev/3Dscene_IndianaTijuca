@@ -16,13 +16,3 @@ root.render(
         <Canvas />
     </StrictMode>
 );
-
-// window.addEventListener('resize', () => {
-//     root.render({
-//         events,
-//         camera: { position: [0, 0, 50], fov: 50 },
-//         size: { width: window.innerWidth, height: window.innerHeight },
-//     });
-//     root.render(<Canvas />);
-// });
-// window.dispatchEvent(new Event('resize'));

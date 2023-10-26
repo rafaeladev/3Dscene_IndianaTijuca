@@ -7,7 +7,8 @@ body,
     width: 100%;
     height: 100%;
     /* background: ivory; */
-    background-color: #ffffff;
+    background-color: #13323e;
+    --width: 100%;
 }
 
 primitive {
@@ -19,7 +20,9 @@ a:hover {
 }
 
 .canvasWrapper {
-    height: 450px;
-    background-color: #aca7ad;
-    margin: auto;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

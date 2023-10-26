@@ -1,10 +1,19 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
+import { Leva } from 'leva';
 
 // Drei
-import { useGLTF, useTexture, OrbitControls } from '@react-three/drei';
+import {
+    useGLTF,
+    useTexture,
+    PresentationControls,
+    useAnimations,
+    Sparkles,
+    PointMaterial,
+    Stars,
+} from '@react-three/drei';
 
 // R3F imports
-import { useFrame, useThree } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 
 // Debug
 import { useControls } from 'leva';
@@ -21,6 +30,11 @@ const Experience = () => {
     // Texture
     const bakedTexture = useTexture('./model/baked_denoised_and_color_corrected.webp');
     bakedTexture.flipY = false;
+
+    // Debug
+    const { color } = useControls('Background', {
+        color: '#13323e',
+    });
 
     // Objects
     const lidsNames = [
@@ -60,6 +74,16 @@ const Experience = () => {
     const [count, setCount] = useState(0);
     const [actionPlay, setActionPlay] = useState(false);
 
+    // Pointing hand animation
+    const name = 'pointing_hand';
+    const animations = useAnimations(scene.animations, nodes[name]);
+    const animationName = animations.names[8];
+    const action = animations.actions[animationName];
+    action.play();
+
+    // Refs
+    const handRef = useRef();
+
     /** Function to Handle Click */
     const eventHandler = (e, animations, letterAnimations, animationName, letterAnimationName) => {
         e.stopPropagation();
@@ -88,8 +112,10 @@ const Experience = () => {
         // To fix the final position at the letter at the final moment of the animation
         letterAction.clampWhenFinished = true;
 
-        if (letterAction.isRunning()) {
-            // console.log('Letter is being animated!');
+        const mixer = letterAction.getMixer();
+        console.log(letterAction.time);
+
+        if (letterAction.time === 0 && letterAction.isRunning() === true) {
             setCount((prevCount) => prevCount + 1);
         }
     };
@@ -111,17 +137,17 @@ const Experience = () => {
         );
     });
 
-    useFrame((state) => {
+    useFrame(() => {
         if (actionPlay === true) {
-            state.scene.children[14].visible = false;
+            handRef.current.visible = false;
         }
-        console.log(state.camera.position);
     });
 
     // Verifying the state of the count to play the final effects
     if (count === 6) {
         hitFinalSound.currentTime = 0;
         hitFinalSound.volume = 0.2;
+
         window.setTimeout(() => {
             hitFinalSound.play();
         }, 2000);
@@ -129,49 +155,59 @@ const Experience = () => {
 
     return (
         <>
+            <Leva hidden={true} />
             <color
-                args={['#ACA7AD']}
+                args={[color]}
                 attach='background'
             />
-            <OrbitControls
-                makeDefault
-                // enableZoom={true}
-                // enablePan={false}
-                // minPolarAngle={Math.PI / 2.1}
-                // maxPolarAngle={Math.PI / 1.9}
-                // minAzimuthAngle={Math.PI / 1.1}
-                // maxAzimuthAngle={-Math.PI / 1.05}
-                // rotateSpeed='0.075'
-                // dampingFactor='0.025'
-            />
-
-            {/* Scene */}
-            <mesh
-                geometry={nodes.export_main_scene.geometry}
-                onPointerEnter={() => {
-                    document.body.style.cursor = 'grab';
-                }}
-                onPointerLeave={() => {
-                    document.body.style.cursor = 'default';
-                }}
+            <PresentationControls
+                enabled={true} // the controls can be disabled by setting this to false
+                global={false} // Spin globally or by dragging the model
+                cursor={true} // Whether to toggle cursor style on drag
+                speed={1} // Speed factor
+                zoom={1} // Zoom factor when half the polar-max is reached
+                rotation={[2.1, Math.PI, 0]} // Default rotation
+                polar={[0.9, 1.01]} // Vertical limits
+                azimuth={[-0.13, 0.18]} // Horizontal limits
+                config={{ mass: 2, tension: 400 }} // elastic effect
+                snap={{ mass: 4, tension: 400 }} // animation tha makes the object go back to the initial position after a drag and drop
             >
-                <meshBasicMaterial map={bakedTexture} />
-            </mesh>
+                <group position={[1, -6, -2]}>
+                    {/* Scene */}
+                    <mesh
+                        geometry={nodes.export_main_scene.geometry}
+                        onPointerEnter={() => {
+                            document.body.style.cursor = 'grab';
+                        }}
+                        onPointerLeave={() => {
+                            document.body.style.cursor = 'default';
+                        }}
+                    >
+                        <meshBasicMaterial map={bakedTexture} />
+                    </mesh>
 
-            <Star nodes={scene.nodes} />
+                    <Star nodes={scene.nodes} />
 
-            {/* Gifts covers */}
-            {lids3D}
+                    {/* Gifts covers */}
+                    {lids3D}
 
-            {/* Pointing hand */}
-            <Lids
-                name={'pointing_hand'}
-                letterName={null}
-                number={8}
-                i={6}
-                scene={scene}
-                texture={bakedTexture}
-            />
+                    {/* Pointing hand */}
+                    <mesh ref={handRef}>
+                        <primitive object={nodes.pointing_hand}>
+                            <meshBasicMaterial map={bakedTexture} />
+                        </primitive>
+                    </mesh>
+
+                    {/* Spakles */}
+                    {/* <Sparkles
+                        size={50}
+                        scale={[4, 2, 4]}
+                        position-y={1}
+                        speed={0.8}
+                        count={40}
+                    /> */}
+                </group>
+            </PresentationControls>
         </>
     );
 };
